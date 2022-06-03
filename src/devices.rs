@@ -31,11 +31,10 @@ impl SmartSocket {
         self.descr.clone()
     }
 
-    fn get_status(&self) -> String {
-        if self.is_on {
-            "ON".to_string()
-        } else {
-            "OFF".to_string()
+    fn get_status(&self) -> &str {
+        match self.is_on {
+            true => "ON",
+            false => "OFF",
         }
     }
 
@@ -74,4 +73,13 @@ impl Report for SmartThermometer {
     fn get_report(&self) -> String {
         format!("Smart thermometer \"{}\" ({}°)", self.name, self.t)
     }
+}
+
+#[test]
+fn socket_get_report_works() {
+    let socket1 = SmartSocket::new("socket_1", 220);
+    assert_eq!(
+        "Smart socket socket_1: \"default descr\" (OFF/220W)",
+        socket1.get_report()
+    );
 }
