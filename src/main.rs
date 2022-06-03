@@ -1,55 +1,22 @@
-struct SmartHouse<'a, 'b> {
-    name: String,
-    bedroom: [&'a str; 3],
-    kitchen: [&'b str; 3],
-}
+/*
 
-impl SmartHouse<'static, 'static> {
-    #[allow(dead_code)]
-    fn get_rooms(&self) -> [&str; 2] {
-        ["bedroom", "kitchen"]
-    }
+- Разделить логически целостные элементы библиотеки "умный дом на отдельные файлы.
+- Покрыть тестами требования к библиотеке.
+- Создать example использования библиотеки. Библиотека предоставляет структуру
+    дома в комнатах которого расположены устройства.
 
-    #[allow(dead_code)]
-    fn devices(&self, room: &str) -> [&str; 3] {
-        match room {
-            "kitchen" => self.kitchen,
-            "bedroom" => self.bedroom,
-            _ => ["", "", ""],
-        }
-    }
+ */
 
-    fn create_report<T: DeviceInfoProvider>(&self, provider: &T) -> String {
-        let mut report = self.name.clone();
+use crate::device_provider::DeviceInfoProvider;
+use crate::smart_house::SmartHouse;
 
-        report.push_str("\nBedroom: \n");
-        report.push_str(
-            self.bedroom
-                .map(|device| provider.get_info("bedroom", device))
-                .join("\n")
-                .as_str(),
-        );
-
-        report.push_str("\nKitchen: \n");
-        report.push_str(
-            self.kitchen
-                .map(|device| provider.get_info("kitchen", device))
-                .join("\n")
-                .as_str(),
-        );
-        report
-    }
-}
-
-trait DeviceInfoProvider {
-    fn get_info(&self, room: &str, device: &str) -> String;
-}
+mod smart_house;
+mod device_provider;
 
 struct SmartSocket {
     name: String,
 }
 
-#[allow(dead_code)]
 struct SmartThermometer {
     name: String,
 }
@@ -68,7 +35,6 @@ impl DeviceInfoProvider for OwningDeviceInfoProvider {
     }
 }
 
-#[allow(dead_code)]
 struct BorrowingDeviceInfoProvider<'a, 'b> {
     socket: &'a SmartSocket,
     thermo: &'b SmartThermometer,
@@ -91,10 +57,8 @@ impl DeviceInfoProvider for BorrowingDeviceInfoProvider<'_, '_> {
 }
 
 fn main() {
-    // Инициализация дома
     let house = SmartHouse {
         name: "my house".to_string(),
-
         kitchen: ["socket_1", "thermo_1", "thermo_2"],
         bedroom: ["socket_2", "socket_3", "thermo_3"],
     };
