@@ -7,9 +7,9 @@
 
  */
 
-use crate::device_provider::{BorrowingDeviceInfoProvider, DeviceInfoProvider, Report};
+use crate::device_provider::BorrowingDeviceInfoProvider;
 use crate::devices::{SmartSocket, SmartThermometer};
-use crate::smart_house::SmartHouse;
+use crate::smart_house::{DeviceInfoProvider, SmartHouse};
 
 mod device_provider;
 mod devices;
@@ -28,8 +28,8 @@ fn main() {
     println!("get_devices(kitchen): {:?}", house.get_devices("kitchen"));
     println!("get_devices(bedroom): {:?}", house.get_devices("bedroom"));
 
-    let socket1 = SmartSocket::new("socket_1");
-    let thermo1 = SmartThermometer::new("thermo_1");
+    let socket1 = SmartSocket::new("socket_1", 220);
+    let thermo1 = SmartThermometer::new("thermo_1", 24);
 
     let mut info_provider_1 = BorrowingDeviceInfoProvider::new();
     info_provider_1.add_device("kitchen", "socket_1", &socket1);
