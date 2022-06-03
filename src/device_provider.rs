@@ -11,6 +11,10 @@ impl<'a> BorrowingDeviceInfoProvider<'a> {
             items: HashMap::new(),
         }
     }
+
+    pub fn add_device(&mut self, room: &str, name: &str, device: &'a dyn Report) {
+        self.items.insert(format!("{}_{}", room, name), device);
+    }
 }
 
 impl<'a> DeviceInfoProvider<'a> for BorrowingDeviceInfoProvider<'a> {
@@ -19,9 +23,5 @@ impl<'a> DeviceInfoProvider<'a> for BorrowingDeviceInfoProvider<'a> {
             Some(device) => device.get_report(),
             None => format!("{:} is not found", name),
         }
-    }
-
-    fn add_device(&mut self, room: &str, name: &str, device: &'a dyn Report) {
-        self.items.insert(format!("{}_{}", room, name), device);
     }
 }

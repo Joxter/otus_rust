@@ -9,7 +9,7 @@
 
 use crate::device_provider::BorrowingDeviceInfoProvider;
 use crate::devices::{SmartSocket, SmartThermometer};
-use crate::smart_house::{DeviceInfoProvider, SmartHouse};
+use crate::smart_house::SmartHouse;
 
 mod device_provider;
 mod devices;
