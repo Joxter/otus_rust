@@ -36,7 +36,7 @@ impl SmartHouse {
     }
 
     pub fn create_report<'a, T: DeviceInfoProvider<'a>>(&self, provider: &T) -> String {
-        let mut report = format!("### House \"{}\"\n", self.name).clone();
+        let mut report = format!("### House \"{}\"\n", self.name);
 
         for room in self.get_rooms() {
             report.push_str(format!("{}:\n", room).as_str());
