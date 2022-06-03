@@ -1,12 +1,3 @@
-/*
-
-- Разделить логически целостные элементы библиотеки "умный дом на отдельные файлы.
-- Покрыть тестами требования к библиотеке.
-- Создать example использования библиотеки. Библиотека предоставляет структуру
-    дома в комнатах которого расположены устройства.
-
- */
-
 use crate::device_provider::BorrowingDeviceInfoProvider;
 use crate::devices::{SmartSocket, SmartThermometer};
 use crate::smart_house::SmartHouse;
