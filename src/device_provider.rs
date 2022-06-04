@@ -12,16 +12,16 @@ impl<'a> BorrowingDeviceInfoProvider<'a> {
         }
     }
 
-    pub fn add_device(&mut self, room: &str, name: &str, device: &'a dyn Report) {
-        self.items.insert(format!("{}_{}", room, name), device);
+    pub fn add_device(&mut self, device_key: String, device: &'a dyn Report) {
+        self.items.insert(device_key, device);
     }
 }
 
 impl<'a> DeviceInfoProvider<'a> for BorrowingDeviceInfoProvider<'a> {
-    fn get_report(&self, room: &str, name: &str) -> String {
-        match self.items.get(&format!("{}_{}", room, name)) {
+    fn get_report(&self, device_key: String) -> String {
+        match self.items.get(&device_key) {
             Some(device) => device.get_report(),
-            None => format!("{:} is not found", name),
+            None => format!("{:} is not found", device_key),
         }
     }
 }

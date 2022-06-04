@@ -50,7 +50,7 @@ pub trait Report {
 /// Должен быть имплементирован пользовтаелем на хранилище устройств и передаваться в
 /// метод `create_report` дома.
 pub trait DeviceInfoProvider<'a> {
-    fn get_report(&self, room: &str, name: &str) -> String;
+    fn get_report(&self, device_key: String) -> String;
 }
 
 impl SmartHouse {
@@ -65,10 +65,15 @@ impl SmartHouse {
         self.rooms.insert(name.to_string(), vec![]);
     }
 
-    pub fn add_device(&mut self, room: &str, device: &str) {
+    pub fn add_device<'a>(&mut self, room: &'a str, device: &'a str) -> String {
         if let Some(r) = self.rooms.get_mut(room) {
             r.push(device.to_string())
         };
+        Self::get_device_key(room, device)
+    }
+
+    fn get_device_key(room: &str, device: &str) -> String {
+        format!("{}_{}", room, device)
     }
 
     pub fn get_rooms(&self) -> Vec<String> {
@@ -92,7 +97,8 @@ impl SmartHouse {
             report.push_str(format!("{}:\n", room).as_str());
 
             for device in self.get_devices(room.as_str()) {
-                let device_report = provider.get_report(room.as_str(), device.as_str());
+                let device_report =
+                    provider.get_report(Self::get_device_key(room.as_str(), device.as_str()));
                 report.push_str(format!("> {}\n", device_report).as_str());
             }
         }
