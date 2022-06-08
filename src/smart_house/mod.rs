@@ -2,6 +2,8 @@
 mod mod_tests;
 
 use std::collections::HashMap;
+use std::fmt;
+use std::fmt::{Display, Formatter};
 
 /// # Умный дом
 ///
@@ -40,6 +42,14 @@ pub struct SmartHouse {
     rooms: HashMap<String, Vec<String>>,
 }
 
+#[derive(Eq, Hash, PartialEq)]
+pub struct DeviceKey(String);
+impl Display for DeviceKey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 /// Трейт для отчетов, его должны реализовывать все устройства в доме
 pub trait Report {
     fn get_report(&self) -> String;
@@ -50,7 +60,7 @@ pub trait Report {
 /// Должен быть имплементирован пользовтаелем на хранилище устройств и передаваться в
 /// метод `create_report` дома.
 pub trait DeviceInfoProvider<'a> {
-    fn get_report(&self, device_key: String) -> String;
+    fn get_report(&self, device_key: DeviceKey) -> String;
 }
 
 impl SmartHouse {
@@ -65,15 +75,15 @@ impl SmartHouse {
         self.rooms.insert(name.to_string(), vec![]);
     }
 
-    pub fn add_device<'a>(&mut self, room: &'a str, device: &'a str) -> String {
+    pub fn add_device<'a>(&mut self, room: &'a str, device: &'a str) -> DeviceKey {
         if let Some(r) = self.rooms.get_mut(room) {
             r.push(device.to_string())
         };
         Self::get_device_key(room, device)
     }
 
-    fn get_device_key(room: &str, device: &str) -> String {
-        format!("{}_{}", room, device)
+    fn get_device_key(room: &str, device: &str) -> DeviceKey {
+        DeviceKey(format!("{}_{}", room, device))
     }
 
     pub fn get_rooms(&self) -> Vec<String> {
