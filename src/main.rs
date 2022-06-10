@@ -10,14 +10,26 @@ fn main() {
     let mut house = SmartHouse::new("my house");
 
     house.add_room("kitchen");
-    house.add_device("kitchen", "socket_1");
-    house.add_device("kitchen", "thermo_1");
+    house
+        .get_mut_room("kitchen")
+        .unwrap()
+        .add_device("socket_1")
+        .add_device("thermo_1");
     house.add_room("bedroom");
-    house.add_device("bedroom", "thermo_1");
+    house
+        .get_mut_room("bedroom")
+        .unwrap()
+        .add_device("thermo_1");
 
-    println!("get_rooms: {:?}", house.get_rooms());
-    println!("get_devices(kitchen): {:?}", house.get_devices("kitchen"));
-    println!("get_devices(bedroom): {:?}", house.get_devices("bedroom"));
+    println!("get_rooms: {:?}", house.get_room_names());
+    println!(
+        "kitchen devices: {:?}",
+        house.get_room("kitchen").unwrap().get_devices()
+    );
+    println!(
+        "bedroom devices: {:?}",
+        house.get_room("bedroom").unwrap().get_devices()
+    );
 
     let socket1 = SmartSocket::new("socket_1", 220);
     let thermo1 = SmartThermometer::new("thermo_1", 24);

@@ -35,9 +35,22 @@ use std::collections::HashMap;
 /// println!("report: \n{}", house.create_report(&info_provider_1));
 /// ```
 
+pub struct SmartRoom(Vec<String>);
+
+impl SmartRoom {
+    pub fn add_device(&mut self, device: &str) -> &mut Self {
+        self.0.push(device.to_string());
+        self
+    }
+
+    pub fn get_devices(&self) -> &Vec<String> {
+        &self.0
+    }
+}
+
 pub struct SmartHouse {
     name: String,
-    rooms: HashMap<String, Vec<String>>,
+    rooms: HashMap<String, SmartRoom>,
 }
 
 /// Трейт для отчетов, его должны реализовывать все устройства в доме
@@ -62,37 +75,32 @@ impl SmartHouse {
     }
 
     pub fn add_room(&mut self, name: &str) {
-        self.rooms.insert(name.to_string(), vec![]);
+        self.rooms.insert(name.to_string(), SmartRoom(vec![]));
     }
 
-    pub fn add_device(&mut self, room: &str, device: &str) {
-        if let Some(r) = self.rooms.get_mut(room) {
-            r.push(device.to_string())
-        };
+    pub fn get_room(&mut self, name: &str) -> Option<&SmartRoom> {
+        self.rooms.get(name)
     }
 
-    pub fn get_rooms(&self) -> Vec<String> {
-        let mut keys: Vec<String> = self.rooms.clone().into_keys().collect();
+    pub fn get_mut_room(&mut self, name: &str) -> Option<&mut SmartRoom> {
+        self.rooms.get_mut(name)
+    }
+
+    pub fn get_room_names(&self) -> Vec<String> {
+        let mut keys: Vec<String> = self.rooms.keys().into_iter().cloned().collect();
         // сортировка только для стабильности результата
         keys.sort();
         keys
     }
 
-    pub fn get_devices(&self, room: &str) -> Vec<String> {
-        if let Some(r) = self.rooms.get(room) {
-            return r.clone();
-        }
-        vec![]
-    }
-
     pub fn create_report<'a, T: DeviceInfoProvider<'a>>(&self, provider: &T) -> String {
         let mut report = format!("### House \"{}\"\n", self.name);
 
-        for room in self.get_rooms() {
-            report.push_str(format!("{}:\n", room).as_str());
+        for (room_name, smart_room) in self.rooms.iter() {
+            report.push_str(format!("{}:\n", room_name).as_str());
 
-            for device in self.get_devices(room.as_str()) {
-                let device_report = provider.get_report(room.as_str(), device.as_str());
+            for device_name in smart_room.get_devices() {
+                let device_report = provider.get_report(room_name, device_name);
                 report.push_str(format!("> {}\n", device_report).as_str());
             }
         }
