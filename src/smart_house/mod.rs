@@ -37,10 +37,31 @@ use std::collections::HashMap;
 
 pub struct SmartRoom(Vec<String>);
 
+#[derive(Debug)]
+pub enum RoomError {
+    Empty,
+    TooLong,
+    NotUniq,
+    MaxRooms,
+}
+
 impl SmartRoom {
-    pub fn add_device(&mut self, device: &str) -> &mut Self {
-        self.0.push(device.to_string());
-        self
+    pub fn add_device(&mut self, name: &str) -> Result<&mut Self, RoomError> {
+        if self.0.len() > 30 {
+            return Err(RoomError::MaxRooms);
+        }
+        if name.is_empty() {
+            return Err(RoomError::Empty);
+        }
+        if name.len() > 30 {
+            return Err(RoomError::TooLong);
+        }
+        if self.0.iter().any(|it| it.eq(name)) {
+            return Err(RoomError::NotUniq);
+        }
+
+        self.0.push(name.to_string());
+        Ok(self)
     }
 
     pub fn get_devices(&self) -> &Vec<String> {

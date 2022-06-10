@@ -14,12 +14,15 @@ fn main() {
         .get_mut_room("kitchen")
         .unwrap()
         .add_device("socket_1")
-        .add_device("thermo_1");
+        .unwrap()
+        .add_device("thermo_1")
+        .unwrap();
     house.add_room("bedroom");
     house
         .get_mut_room("bedroom")
         .unwrap()
-        .add_device("thermo_1");
+        .add_device("thermo_1")
+        .unwrap();
 
     println!("get_rooms: {:?}", house.get_room_names());
     println!(
