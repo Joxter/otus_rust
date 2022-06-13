@@ -1,7 +1,10 @@
 #[cfg(test)]
 mod mod_tests;
+mod smart_room;
 
+use smart_room::*;
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 
 /// # Умный дом
 ///
@@ -35,40 +38,6 @@ use std::collections::HashMap;
 /// println!("report: \n{}", house.create_report(&info_provider_1));
 /// ```
 
-pub struct SmartRoom(Vec<String>);
-
-#[derive(Debug)]
-pub enum RoomError {
-    Empty,
-    TooLong,
-    NotUniq,
-    MaxRooms,
-}
-
-impl SmartRoom {
-    pub fn add_device(&mut self, name: &str) -> Result<&mut Self, RoomError> {
-        if self.0.len() > 30 {
-            return Err(RoomError::MaxRooms);
-        }
-        if name.is_empty() {
-            return Err(RoomError::Empty);
-        }
-        if name.len() > 30 {
-            return Err(RoomError::TooLong);
-        }
-        if self.0.iter().any(|it| it.eq(name)) {
-            return Err(RoomError::NotUniq);
-        }
-
-        self.0.push(name.to_string());
-        Ok(self)
-    }
-
-    pub fn get_devices(&self) -> &Vec<String> {
-        &self.0
-    }
-}
-
 pub struct SmartHouse {
     name: String,
     rooms: HashMap<String, SmartRoom>,
@@ -84,7 +53,24 @@ pub trait Report {
 /// Должен быть имплементирован пользовтаелем на хранилище устройств и передаваться в
 /// метод `create_report` дома.
 pub trait DeviceInfoProvider<'a> {
-    fn get_report(&self, room: &str, name: &str) -> String;
+    fn get_report(&self, room: &str, name: &str) -> Option<String>;
+}
+
+#[derive(Debug)]
+pub enum HouseError {
+    Empty,
+    TooLong,
+    NotUniq,
+}
+
+impl Display for HouseError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            HouseError::Empty => write!(f, "Имя не может быть пустым"),
+            HouseError::TooLong => write!(f, "Слишком длинное имя"),
+            HouseError::NotUniq => write!(f, "Комната с таким именем уже есть"),
+        }
+    }
 }
 
 impl SmartHouse {
@@ -95,8 +81,20 @@ impl SmartHouse {
         }
     }
 
-    pub fn add_room(&mut self, name: &str) {
-        self.rooms.insert(name.to_string(), SmartRoom(vec![]));
+    pub fn add_room(&mut self, name: &str) -> Result<&mut Self, HouseError> {
+        if name.is_empty() {
+            return Err(HouseError::Empty);
+        }
+        if name.len() > 30 {
+            return Err(HouseError::TooLong);
+        }
+        let name = name.to_string();
+        if self.rooms.contains_key(&name) {
+            return Err(HouseError::NotUniq);
+        }
+
+        self.rooms.insert(name, SmartRoom::new());
+        Ok(self)
     }
 
     pub fn get_room(&mut self, name: &str) -> Option<&SmartRoom> {
@@ -108,21 +106,24 @@ impl SmartHouse {
     }
 
     pub fn get_room_names(&self) -> Vec<String> {
-        let mut keys: Vec<String> = self.rooms.keys().into_iter().cloned().collect();
+        let mut keys: Vec<String> = self.rooms.keys().cloned().collect();
         // сортировка только для стабильности результата
         keys.sort();
         keys
     }
 
     pub fn create_report<'a, T: DeviceInfoProvider<'a>>(&self, provider: &T) -> String {
-        let mut report = format!("### House \"{}\"\n", self.name);
+        let mut report = format!("### Умный дом \"{}\"\n", self.name);
 
         for (room_name, smart_room) in self.rooms.iter() {
             report.push_str(format!("{}:\n", room_name).as_str());
 
             for device_name in smart_room.get_devices() {
-                let device_report = provider.get_report(room_name, device_name);
-                report.push_str(format!("> {}\n", device_report).as_str());
+                let device_report = match provider.get_report(room_name, device_name) {
+                    Some(device_report) => format!("> {}\n", device_report),
+                    None => format!("! устройство {} не найдено \n", device_name),
+                };
+                report.push_str(device_report.as_str())
             }
         }
 

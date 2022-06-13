@@ -9,7 +9,7 @@ mod smart_house;
 fn main() {
     let mut house = SmartHouse::new("my house");
 
-    house.add_room("kitchen");
+    house.add_room("kitchen").unwrap();
     house
         .get_mut_room("kitchen")
         .unwrap()
@@ -17,7 +17,8 @@ fn main() {
         .unwrap()
         .add_device("thermo_1")
         .unwrap();
-    house.add_room("bedroom");
+
+    house.add_room("bedroom").unwrap();
     house
         .get_mut_room("bedroom")
         .unwrap()
