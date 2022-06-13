@@ -63,6 +63,12 @@ pub enum HouseError {
     NotUniq,
 }
 
+impl From<HouseError> for String {
+    fn from(err: HouseError) -> Self {
+        err.to_string()
+    }
+}
+
 impl Display for HouseError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {

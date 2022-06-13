@@ -21,6 +21,12 @@ impl Display for RoomError {
     }
 }
 
+impl From<RoomError> for String {
+    fn from(err: RoomError) -> Self {
+        err.to_string()
+    }
+}
+
 impl SmartRoom {
     pub fn new() -> Self {
         SmartRoom(vec![])
