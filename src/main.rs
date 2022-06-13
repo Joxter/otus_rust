@@ -19,6 +19,12 @@ fn init_my_house() -> Result<SmartHouse, String> {
         room.add_device("thermo_1")?;
     }
 
+    Ok(house)
+}
+
+fn main() -> Result<(), String> {
+    let house = init_my_house()?;
+
     println!("get_rooms: {:?}", house.get_room_names());
     println!(
         "kitchen devices: {:?}",
@@ -28,12 +34,6 @@ fn init_my_house() -> Result<SmartHouse, String> {
         "bedroom devices: {:?}",
         house.get_room("bedroom").unwrap().get_devices()
     );
-
-    Ok(house)
-}
-
-fn main() -> Result<(), String> {
-    let house = init_my_house()?;
 
     let socket1 = SmartSocket::new("socket_1", 220);
     let thermo1 = SmartThermometer::new("thermo_1", 24);

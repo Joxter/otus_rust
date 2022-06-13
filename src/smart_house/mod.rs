@@ -103,7 +103,7 @@ impl SmartHouse {
         Ok(self)
     }
 
-    pub fn get_room(&mut self, name: &str) -> Option<&SmartRoom> {
+    pub fn get_room(&self, name: &str) -> Option<&SmartRoom> {
         self.rooms.get(name)
     }
 
