@@ -19,9 +19,8 @@ impl<'a> BorrowingDeviceInfoProvider<'a> {
 
 impl<'a> DeviceInfoProvider<'a> for BorrowingDeviceInfoProvider<'a> {
     fn get_report(&self, room: &str, name: &str) -> Option<String> {
-        match self.items.get(&format!("{}_{}", room, name)) {
-            Some(device) => Some(device.get_report()),
-            None => None,
-        }
+        self.items
+            .get(&format!("{}_{}", room, name))
+            .map(|device| device.get_report())
     }
 }
